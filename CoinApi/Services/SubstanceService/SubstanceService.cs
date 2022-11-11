@@ -4,6 +4,9 @@ using CoinApi.Request_Models;
 using CoinApi.Response_Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Mindbox.Data.Linq;
+using System.Data.SqlClient;
+using Dapper;
 
 namespace CoinApi.Services.SubstanceService
 {
@@ -59,7 +62,7 @@ namespace CoinApi.Services.SubstanceService
             return true;
         }
 
-        public dynamic loadDB(DbSyncRequest data)
+        public List<Object> loadDB(DbSyncRequest data)
         {
             string query =
                 $"SELECT s.SubstanceID, s.Hidde, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
@@ -72,10 +75,14 @@ namespace CoinApi.Services.SubstanceService
                 $"WHERE (s.StandardYesNo = 1) AND (g.StandardYesNO = 1) " +
                 $"and u.UserID={data.userid} and l.languageNumber ={data.languageid} " +
                 $"and u.DeviceNumber='{data.devicenum}' and u.ActiveAcount=1";
-            var result = context.tblSubstance
-                .FromSqlRaw(query)
-                .ToList();
-            return result;
+            //var result = context.Database.ExecuteSqlRaw(query);
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }

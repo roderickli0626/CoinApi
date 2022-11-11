@@ -6,6 +6,6 @@ namespace CoinApi.Services.SubstanceService
 {
     public interface ISubstanceService : IService<tblSubstance>
     {
-        dynamic loadDB(DbSyncRequest data);
+        List<Object> loadDB(DbSyncRequest data);
     }
 }
