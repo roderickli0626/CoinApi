@@ -1,5 +1,9 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
+using CoinApi.Request_Models;
+using CoinApi.Response_Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace CoinApi.Services.SubstanceService
 {
@@ -53,6 +57,25 @@ namespace CoinApi.Services.SubstanceService
             context.tblSubstance.Update(substance);
             context.SaveChanges();
             return true;
+        }
+
+        public dynamic loadDB(DbSyncRequest data)
+        {
+            string query =
+                $"SELECT s.SubstanceID, s.Hidde, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
+                $"FROM [tblSubstance] AS s INNER JOIN tblSubstanceForGroup AS sfg ON sfg.SubstanceID = s.SubstanceID " +
+                $"INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = sfg.GroupNumber " +
+                $"Inner Join tblUser as u on u.UserID = g.UserID " +
+                $"join tblSubstanceGroupText gt on gt.GroupNumber= g.GroupNumber " +
+                $"join tblSubstanceText st on st.SubstanceID=s.SubstanceID " +
+                $"join tblLanguage l on gt.Language= l.languageNumber  and u.LanguageNumber=l.languageNumber and st.Language=l.LanguageNumber " +
+                $"WHERE (s.StandardYesNo = 1) AND (g.StandardYesNO = 1) " +
+                $"and u.UserID={data.userid} and l.languageNumber ={data.languageid} " +
+                $"and u.DeviceNumber='{data.devicenum}' and u.ActiveAcount=1";
+            var result = context.tblSubstance
+                .FromSqlRaw(query)
+                .ToList();
+            return result;
         }
     }
 }

@@ -57,7 +57,9 @@ namespace CoinApi.Services.AuthService
                 Token = tokenString, 
                 refreshToken = refreshToken, 
                 result = true, 
-                userId = db_user.UserID 
+                userId = db_user.UserID,
+                languageNumber = db_user.LanguageNumber,
+                deviceNumber = db_user.DeviceNumber
             };
         }
 

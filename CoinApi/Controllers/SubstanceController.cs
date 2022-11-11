@@ -1,4 +1,6 @@
 ﻿using CoinApi.DB_Models;
+using CoinApi.Request_Models;
+using CoinApi.Response_Models;
 using CoinApi.Services.SubstanceGroupService;
 using CoinApi.Services.SubstanceService;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +58,16 @@ namespace CoinApi.Controllers
                 return BadRequest("Invalid Language Model");
 
             return substanceService.Update(model) ? Ok() : NotFound();
+        }
+
+        [HttpPost("loadDB")]
+        public async Task<IActionResult> loadDB([FromBody] DbSyncRequest data)
+        {
+            var result =  substanceService.loadDB(data);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }

@@ -7,5 +7,7 @@
         public string? refreshToken { get; set; }
         public bool? result { get; set; }
         public int userId { get; set; }
+        public int? languageNumber { get; set; }
+        public string? deviceNumber { get; set; }
     }
 }
