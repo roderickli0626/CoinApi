@@ -4,6 +4,7 @@
     {
         public int SubstanceID { get; set; }
         public bool? Hidde { get; set; }
-        public string? WavFile { get; set; }
+        public byte[]? WavFile { get; set; }
+        public bool? StandardYesNo { get; set; }
     }
 }

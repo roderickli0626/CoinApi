@@ -2,6 +2,7 @@
 using CoinApi.Helpers;
 using CoinApi.Request_Models;
 using CoinApi.Response_Models;
+using CoinApi.Services.LanguageService;
 using CoinApi.Services.UserService;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,10 +16,12 @@ namespace CoinApi.Services.AuthService
     {
         private IConfiguration config;
         private IUserService userService;
-        public AuthService(IConfiguration config, IUserService userService)
+        private ILanguageService langaugeService;
+        public AuthService(IConfiguration config, IUserService userService, ILanguageService languageService)
         {
             this.config = config;
             this.userService = userService;
+            this.langaugeService = languageService;
         }
 
         public AuthenticatedResponse? Login(LoginModel user)
@@ -65,6 +68,12 @@ namespace CoinApi.Services.AuthService
                 return null;
             }
 
+            tblLanguage language = new tblLanguage()
+            {
+                description = model.language
+            };
+            tblLanguage insertedLanguage = langaugeService.Create(language);
+
             tblUser user = new tblUser()
             {
                 FirstName = model.firstname,
@@ -72,7 +81,7 @@ namespace CoinApi.Services.AuthService
                 Email = model.email,
                 Password = Hasher.HashPassword(model.password),
                 DeviceNumber = model.serialNumber,
-                Language = model.language,
+                LanguageNumber = insertedLanguage.languageNumber,
             };
 
             tblUser insertedUser = userService.Create(user);

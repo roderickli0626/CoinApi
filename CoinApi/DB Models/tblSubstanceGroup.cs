@@ -5,5 +5,6 @@
         public int GroupNumber { get; set; }
         public int? UserID { get; set; }
         public bool? ViewYesNo { get; set; }
+        public bool? StandardYesNo { get; set; }
     }
 }

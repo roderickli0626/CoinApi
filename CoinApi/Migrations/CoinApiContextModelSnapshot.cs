@@ -49,8 +49,11 @@ namespace CoinApi.Migrations
                     b.Property<bool?>("Hidde")
                         .HasColumnType("bit");
 
-                    b.Property<string>("WavFile")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("StandardYesNo")
+                        .HasColumnType("bit");
+
+                    b.Property<byte[]>("WavFile")
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("SubstanceID");
 
@@ -83,6 +86,9 @@ namespace CoinApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupNumber"), 1L, 1);
+
+                    b.Property<bool?>("StandardYesNo")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("UserID")
                         .HasColumnType("int");
@@ -168,8 +174,8 @@ namespace CoinApi.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Language")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LanguageNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");

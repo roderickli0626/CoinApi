@@ -52,7 +52,7 @@ namespace CoinApi.Services.UserService
             user.City = entity.City;
             user.Email = entity.Email;
             user.Country = entity.Country;
-            user.Language = entity.Language;
+            user.LanguageNumber = entity.LanguageNumber;
             user.Password = entity.Password;
 
             context.tblUser.Update(user);

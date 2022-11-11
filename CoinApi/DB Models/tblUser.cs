@@ -11,7 +11,7 @@
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? DeviceNumber { get; set; }
-        public string? Language { get; set; }
+        public int? LanguageNumber { get; set; }
         public bool? ActiveAcount { get; set; }
 
 
