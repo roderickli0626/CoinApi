@@ -53,13 +53,14 @@ namespace CoinApi.Services.AuthService
                 refreshToken = Convert.ToBase64String(randomNumber);
             }
 
-            return new AuthenticatedResponse { 
-                Token = tokenString, 
-                refreshToken = refreshToken, 
-                result = true, 
+            return new AuthenticatedResponse {
+                Token = tokenString,
+                refreshToken = refreshToken,
+                result = true,
                 userId = db_user.UserID,
                 languageNumber = db_user.LanguageNumber,
-                deviceNumber = db_user.DeviceNumber
+                deviceNumber = db_user.DeviceNumber,
+                userName = db_user.FirstName + " " + db_user.LastName
             };
         }
 

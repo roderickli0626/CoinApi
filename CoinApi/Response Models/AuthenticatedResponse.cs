@@ -9,5 +9,6 @@
         public int userId { get; set; }
         public int? languageNumber { get; set; }
         public string? deviceNumber { get; set; }
+        public string? userName { get; set; }
     }
 }
