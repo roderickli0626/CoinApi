@@ -6,5 +6,6 @@
         public bool? Hidde { get; set; }
         public byte[]? WavFile { get; set; }
         public bool? StandardYesNo { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }

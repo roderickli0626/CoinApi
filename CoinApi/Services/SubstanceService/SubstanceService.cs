@@ -23,7 +23,7 @@ namespace CoinApi.Services.SubstanceService
             //    language = context.tblLanguage.FromSqlRaw("Insert into tblLanguage values (" + entity.languageNumber + ",'" + entity.description + "')").FirstOrDefault();
             //    //context.Database.ExecuteSqlRaw("Insert into tblLanguage values (2, 'second')");
             //}
-
+            entity.DateCreated = DateTime.Now;
             tblSubstance subGroup = context.tblSubstance.Add(entity).Entity;
             context.SaveChanges();
             return subGroup;
@@ -65,7 +65,7 @@ namespace CoinApi.Services.SubstanceService
         public List<Object> loadDB(DbSyncRequest data)
         {
             string query =
-                $"SELECT s.SubstanceID, s.Hidde, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
+                $"SELECT s.SubstanceID, s.Hidde, s.DateCreated as DefaultDateTime, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
                 $"FROM [tblSubstance] AS s INNER JOIN tblSubstanceForGroup AS sfg ON sfg.SubstanceID = s.SubstanceID " +
                 $"INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = sfg.GroupNumber " +
                 $"Inner Join tblUser as u on u.UserID = g.UserID " +
