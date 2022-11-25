@@ -7,5 +7,6 @@
         public byte[]? WavFile { get; set; }
         public bool? StandardYesNo { get; set; }
         public DateTime DateCreated { get; set; }
+        public int Duration { get; set; }
     }
 }

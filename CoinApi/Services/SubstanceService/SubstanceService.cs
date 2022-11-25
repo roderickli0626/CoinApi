@@ -65,7 +65,7 @@ namespace CoinApi.Services.SubstanceService
         public List<Object> loadDB(DbSyncRequest data)
         {
             string query =
-                $"SELECT s.SubstanceID, s.Hidde, s.DateCreated as DefaultDateTime, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
+                $"SELECT s.SubstanceID, s.Hidde, s.DateCreated as DefaultDateTime, s.Duration, s.StandardYesNo, s.WavFile, u.*, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
                 $"FROM [tblSubstance] AS s INNER JOIN tblSubstanceForGroup AS sfg ON sfg.SubstanceID = s.SubstanceID " +
                 $"INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = sfg.GroupNumber " +
                 $"Inner Join tblUser as u on u.UserID = g.UserID " +
