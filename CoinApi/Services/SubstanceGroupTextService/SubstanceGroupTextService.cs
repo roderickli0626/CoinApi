@@ -1,5 +1,9 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
+using CoinApi.Request_Models;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using System.Data.SqlClient;
 
 namespace CoinApi.Services.SubstanceGroupTextService
 {
@@ -54,6 +58,23 @@ namespace CoinApi.Services.SubstanceGroupTextService
             context.tblSubstanceGroupText.Update(substanceGroupText);
             context.SaveChanges();
             return true;
+        }
+
+        public List<Object> loadDB(DbSyncRequest data)
+        {
+            string query =
+                $"SELECT gt.* " +
+                $"FROM [tblSubstanceGroupText] AS gt INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = gt.GroupNumber " +
+                $"Inner Join tblUser as u on u.UserID = g.UserID " +
+                $"WHERE (g.StandardYesNO = 1) " +
+                $"and u.UserID={data.userid}";
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }

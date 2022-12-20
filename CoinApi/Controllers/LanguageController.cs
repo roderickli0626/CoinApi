@@ -1,6 +1,8 @@
 ﻿using CoinApi.DB_Models;
+using CoinApi.Request_Models;
 using CoinApi.Services;
 using CoinApi.Services.LanguageService;
+using CoinApi.Services.SubstanceService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoinApi.Controllers
@@ -56,6 +58,16 @@ namespace CoinApi.Controllers
                 return NotFound();
 
             return languageService.Update(model) ? Ok() : NotFound();
+        }
+
+        [HttpPost("loadDB")]
+        public async Task<IActionResult> loadDB([FromBody] DbSyncRequest data)
+        {
+            var result = languageService.loadDB(data);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }

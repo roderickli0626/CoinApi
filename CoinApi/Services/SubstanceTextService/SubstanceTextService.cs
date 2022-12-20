@@ -1,5 +1,9 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
+using CoinApi.Request_Models;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using System.Data.SqlClient;
 
 namespace CoinApi.Services.SubstanceTextService
 {
@@ -54,6 +58,25 @@ namespace CoinApi.Services.SubstanceTextService
             context.tblSubstanceText.Update(substanceText);
             context.SaveChanges();
             return true;
+        }
+
+        public List<Object> loadDB(DbSyncRequest data)
+        {
+            string query =
+                $"SELECT st.* " +
+                $"FROM [tblSubstanceText] AS st INNER JOIN tblSubstance AS s ON s.SubstanceID = st.SubstanceID " +
+                $"INNER JOIN tblSubstanceForGroup AS sfg ON sfg.SubstanceID = s.SubstanceID " +
+                $"INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = sfg.GroupNumber " +
+                $"Inner Join tblUser as u on u.UserID = g.UserID " +
+                $"WHERE (s.StandardYesNo = 1) AND (g.StandardYesNO = 1) " +
+                $"and u.UserID={data.userid}";
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }

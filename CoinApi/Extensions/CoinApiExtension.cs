@@ -1,4 +1,5 @@
 ﻿using CoinApi.Services.AuthService;
+using CoinApi.Services.LanguageGUIService;
 using CoinApi.Services.LanguageService;
 using CoinApi.Services.SubstanceForGroupService;
 using CoinApi.Services.SubstanceGroupService;
@@ -22,6 +23,7 @@ namespace CoinApi.Extensions
             services.AddTransient<ISubstanceGroupTextService, SubstanceGroupTextService>();
             services.AddTransient<ISubstanceTextService, SubstanceTextService>();
             services.AddTransient<ISubstanceService, SubstanceService>();
+            services.AddTransient<ILanguageGUIService, LanguageGUIService>();
 
             return services;
         }

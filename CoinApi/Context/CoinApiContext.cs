@@ -18,6 +18,7 @@ namespace CoinApi.Context
         public DbSet<tblSubstanceGroupText> tblSubstanceGroupText { get; set; }
         public DbSet<tblSubstanceText> tblSubstanceText { get; set; }
         public DbSet<tblUser> tblUser { get; set; }
+        public DbSet<tblLanguageGUI> tblLanguageGUI { get; set; }
 
         protected override void OnModelCreating (ModelBuilder modelBuilder)
         {
@@ -28,6 +29,7 @@ namespace CoinApi.Context
             modelBuilder.Entity<tblSubstanceGroupText>().HasKey(s => s.Id);
             modelBuilder.Entity<tblSubstanceText>().HasKey(s => s.Id);
             modelBuilder.Entity<tblUser>().HasKey(u => u.UserID);
+            modelBuilder.Entity<tblLanguageGUI>().HasKey(g => g.Id);
             base.OnModelCreating(modelBuilder);
         }
     }

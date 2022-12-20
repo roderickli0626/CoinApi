@@ -1,6 +1,9 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
+using CoinApi.Request_Models;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
+using System.Data.SqlClient;
 
 namespace CoinApi.Services.LanguageService
 {
@@ -53,6 +56,18 @@ namespace CoinApi.Services.LanguageService
             context.tblLanguage.Update(language);
             context.SaveChanges();
             return true;
+        }
+
+        public List<Object> loadDB(DbSyncRequest data)
+        {
+            string query = "SELECT * FROM [tblLanguage]";
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }

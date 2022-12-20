@@ -1,9 +1,9 @@
 ﻿using CoinApi.DB_Models;
 using CoinApi.Request_Models;
 
-namespace CoinApi.Services.LanguageService
+namespace CoinApi.Services.LanguageGUIService
 {
-    public interface ILanguageService : IService<tblLanguage>
+    public interface ILanguageGUIService : IService<tblLanguageGUI>
     {
         List<Object> loadDB(DbSyncRequest data);
     }
