@@ -2,7 +2,6 @@
 using CoinApi.Request_Models;
 using CoinApi.Services.SubstanceGroupService;
 using CoinApi.Services.SubstanceGroupTextService;
-using CoinApi.Services.SubstanceTextService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoinApi.Controllers

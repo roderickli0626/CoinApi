@@ -58,6 +58,11 @@ namespace CoinApi.Controllers
 
             return substanceTextService.Update(model) ? Ok() : NotFound();
         }
+        [HttpGet("GetSubStanceByGroupId")]
+        public async Task<IActionResult> GetSubStanceByGroupId([FromQuery] int Id)
+        {
+            return Ok(await substanceTextService.GetSubStanceByGroupId(Id));
+        }
 
         [HttpPost("loadDB")]
         public async Task<IActionResult> loadDB([FromBody] DbSyncRequest data)

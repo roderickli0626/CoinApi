@@ -1,12 +1,23 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
+using CoinApi.Enums;
+using CoinApi.Request_Models;
+using CoinApi.Response_Models;
+using CoinApi.Services.FileStorageService;
+using CoinApi.Shared;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Globalization;
+using static CoinApi.Shared.ApiFunctions;
 
 namespace CoinApi.Services.SubstanceGroupService
 {
     public class SubstanceGroupService : Service<tblSubstanceGroup>, ISubstanceGroupService
     {
-        public SubstanceGroupService(CoinApiContext context) : base(context)
+        private readonly IFileStorageService _fileStorageService;
+        public SubstanceGroupService(CoinApiContext context, IFileStorageService fileStorageService) : base(context)
         {
+            _fileStorageService = fileStorageService;
         }
         public override tblSubstanceGroup Create(tblSubstanceGroup entity)
         {
@@ -54,5 +65,181 @@ namespace CoinApi.Services.SubstanceGroupService
             context.SaveChanges();
             return true;
         }
+        public async Task<ApiResponse> AddGroup(GroupInfoDto groupInfo)
+        {
+            if (groupInfo == null)
+                return ApiErrorResponse("Group not found.");
+
+
+            var chkExist = context.tblSubstanceGroupText.FirstOrDefault(s => s.Description.Trim() == groupInfo.GroupName.Trim());
+            if (chkExist != null)
+                return ApiErrorResponse("Please enter unique group name.");
+
+
+            tblSubstanceGroup tblSubstanceGroup = new tblSubstanceGroup()
+            {
+                UserID = groupInfo.UserId,
+                StandardYesNo = groupInfo.IsStandard,
+                ViewYesNo = groupInfo.IsHide
+            };
+            await context.tblSubstanceGroup.AddAsync(tblSubstanceGroup);
+            await context.SaveChangesAsync();
+
+            tblSubstanceGroupText tblSubstanceGroupText = new tblSubstanceGroupText()
+            {
+                GroupNumber = tblSubstanceGroup.GroupNumber,
+                Language = groupInfo.LanguageId,
+                Description = groupInfo.GroupName
+            };
+            await context.tblSubstanceGroupText.AddAsync(tblSubstanceGroupText);
+            await context.SaveChangesAsync();
+            return ApiSuccessResponses(null, "Group create successfully.");
+        }
+        public async Task<ApiResponse> UpdateGroup(GroupInfoDto groupInfo)
+        {
+            if (groupInfo == null)
+                return ApiErrorResponse("Group not found.");
+
+
+            var chkSubstancegroup = context.tblSubstanceGroup.FirstOrDefault(s => s.GroupNumber == groupInfo.Id);
+            if (chkSubstancegroup == null)
+                return ApiErrorResponse("Group not found.");
+
+            chkSubstancegroup.UserID = groupInfo.UserId;
+            chkSubstancegroup.StandardYesNo = groupInfo.IsStandard;
+            chkSubstancegroup.ViewYesNo = groupInfo.IsHide;
+            await context.SaveChangesAsync();
+
+            var chkSubstancegrouptext = context.tblSubstanceGroupText.FirstOrDefault(s => s.GroupNumber == groupInfo.Id);
+            if (chkSubstancegrouptext != null)
+            {
+                chkSubstancegrouptext.Language = groupInfo.LanguageId;
+                chkSubstancegrouptext.Description = groupInfo.GroupName;
+                await context.SaveChangesAsync();
+            }
+            return ApiSuccessResponses(null, "Group update successfully.");
+        }
+        public async Task<ApiResponse> GetGroupInfoById(int id)
+        {
+            var getGroupInfo = await (from tsg in context.tblSubstanceGroup
+                                      join tsgt in context.tblSubstanceGroupText on tsg.GroupNumber equals tsgt.GroupNumber
+                                      join tl in context.tblLanguage on tsgt.Language equals tl.languageNumber into Language
+                                      from tl in Language.DefaultIfEmpty()
+                                      where tsg.GroupNumber == id
+                                      select new GroupInfoDto
+                                      {
+                                          Id = tsg.GroupNumber,
+                                          GroupName = tsgt.Description,
+                                          Language = tl.description,
+                                          IsStandard = tsg.StandardYesNo,
+                                          IsHide = tsg.ViewYesNo,
+                                          LanguageId = tsgt.Language,
+                                          UserId = tsg.UserID
+                                      }).FirstOrDefaultAsync();
+            if (getGroupInfo == null)
+                return ApiErrorResponse("Please enter valid group.");
+
+            return ApiSuccessResponses(getGroupInfo, "Group successfully deleted.");
+        }
+        public async Task<ApiResponse> DeleteGroup(int id)
+        {
+            var getGroupInfo = await context.tblSubstanceGroup.FirstOrDefaultAsync(s => s.GroupNumber == id);
+            if (getGroupInfo == null)
+                return ApiErrorResponse("Please enter valid group.");
+
+            var getSubGroupInfo = await context.tblSubstanceGroupText.FirstOrDefaultAsync(s => s.GroupNumber == id);
+            context.tblSubstanceGroupText.Remove(getSubGroupInfo);
+            context.tblSubstanceGroup.Remove(getGroupInfo);
+            await context.SaveChangesAsync();
+            return ApiSuccessResponses(null, "Group successfully deleted.");
+        }
+        public async Task<ApiResponse> GetAllGroups(string search = null, string order = "0", string orderDir = "asc", int startRec = 0, int pageSize = 10, bool isAll = false)
+        {
+            var data = new List<GroupInfoDto>();
+            try
+            {
+
+                data = await (from tsg in context.tblSubstanceGroup
+                              join tsgt in context.tblSubstanceGroupText on tsg.GroupNumber equals tsgt.GroupNumber
+                              join tl in context.tblLanguage on tsgt.Language equals tl.languageNumber into Language
+                              from tl in Language.DefaultIfEmpty()
+                              select new GroupInfoDto
+                              {
+                                  Id = tsg.GroupNumber,
+                                  GroupName = tsgt.Description,
+                                  Language = tl.description,
+                                  IsStandard = tsg.StandardYesNo,
+                                  IsHide = tsg.ViewYesNo
+                              }).ToListAsync();
+
+                int totalRecords = data.Count;
+                if (!string.IsNullOrEmpty(search) && !string.IsNullOrWhiteSpace(search))
+                {
+                    data = data.Where(p => (p.GroupName != null && p.GroupName.ToLower().Contains(search.ToLower())) ||
+                    (p.Language != null && p.Language.ToString().ToLower().Contains(search.ToLower())) ||
+                    (p.IsStandard != null && p.IsStandard.ToString().ToLower().Contains(search.ToLower())) ||
+                    (p.IsHide != null && p.IsHide.ToString().ToLower().Contains(search.ToLower()))).ToList();
+                }
+                data = SortTableGroupList(order, orderDir, data);
+                int recFilter = data.Count;
+                data = isAll ? data.ToList() : data.Skip(startRec).Take(pageSize).ToList();
+                DataTableResponseVM model = new DataTableResponseVM
+                {
+                    RecFilter = recFilter,
+                    TotalRecords = totalRecords,
+                    Response = JsonConvert.SerializeObject(data)
+                };
+                return new ApiResponse
+                {
+                    IsSuccess = true,
+                    Data = JsonConvert.SerializeObject(model)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        private List<GroupInfoDto> SortTableGroupList(string order, string orderDir, List<GroupInfoDto> data)
+        {
+            List<GroupInfoDto> stateList = new List<GroupInfoDto>();
+            try
+            {
+                switch (order)
+                {
+                    case "0":
+                        stateList = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.Id).ToList() : data.OrderBy(p => p.Id).ToList();
+                        break;
+                    case "1":
+                        stateList = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.GroupName).ToList() : data.OrderBy(p => p.GroupName).ToList();
+                        break;
+                    case "2":
+                        stateList = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.Language).ToList() : data.OrderBy(p => p.Language).ToList();
+                        break;
+                    case "3":
+                        stateList = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.IsStandard).ToList() : data.OrderBy(p => p.IsStandard).ToList();
+                        break;
+                    case "4":
+                        stateList = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.IsHide).ToList() : data.OrderBy(p => p.IsHide).ToList();
+                        break;
+
+                    default:
+                        stateList = data.OrderByDescending(p => p.Id).ToList();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+            return stateList;
+        }
+
+
+       
     }
 }

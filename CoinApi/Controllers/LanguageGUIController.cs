@@ -1,4 +1,4 @@
-﻿using CoinApi.DB_Models;
+using CoinApi.DB_Models;
 using CoinApi.Request_Models;
 using CoinApi.Services.LanguageGUIService;
 using CoinApi.Services.SubstanceService;

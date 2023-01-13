@@ -1,4 +1,4 @@
-﻿using CoinApi.Context;
+using CoinApi.Context;
 using CoinApi.DB_Models;
 using CoinApi.Request_Models;
 using Dapper;

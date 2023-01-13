@@ -1,9 +1,11 @@
 ﻿using CoinApi.Context;
 using CoinApi.DB_Models;
 using CoinApi.Request_Models;
+using CoinApi.Shared;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
+using static CoinApi.Shared.ApiFunctions;
 
 namespace CoinApi.Services.SubstanceTextService
 {
@@ -44,7 +46,7 @@ namespace CoinApi.Services.SubstanceTextService
         public override tblSubstanceText GetById(int id)
         {
             return context.tblSubstanceText
-                .FirstOrDefault(x => x.Id    == id);
+                .FirstOrDefault(x => x.Id == id);
         }
         public override bool Update(tblSubstanceText entity)
         {
@@ -58,6 +60,23 @@ namespace CoinApi.Services.SubstanceTextService
             context.tblSubstanceText.Update(substanceText);
             context.SaveChanges();
             return true;
+        }
+        public async Task<ApiResponse> GetSubStanceByGroupId(int id)
+        {
+            //var getUserInfo = await context.tblUser.FirstOrDefaultAsync(s => s.UserID == id);
+            var getUserInfo = await (from tm in context.tblSubstanceText
+                                     join tc in context.tblSubstanceForGroup on tm.SubstanceID equals tc.SubstanceID into Group
+                                     from tc in Group.DefaultIfEmpty()
+                                     where tc.GroupNumber == id
+                                     select new
+                                     {
+                                         SubstanceID = tm.SubstanceID,
+                                         Description = tm.Description
+                                     }).ToListAsync();
+            if (getUserInfo == null)
+                return ApiErrorResponse("Please enter valid group.");
+
+            return ApiSuccessResponse(getUserInfo);
         }
 
         public List<Object> loadDB(DbSyncRequest data)

@@ -10,5 +10,7 @@
         public int? languageNumber { get; set; }
         public string? deviceNumber { get; set; }
         public string? userName { get; set; }
+        public string? Email { get; set; }
+        public string? Category { get; set; }
     }
 }
