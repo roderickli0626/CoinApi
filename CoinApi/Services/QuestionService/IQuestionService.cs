@@ -9,5 +9,6 @@ namespace CoinApi.Services.QuestionService
         Task<ApiResponse> GetAllQuestion(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
         Task<ApiResponse> DeleteQuestion(int id);
         Task<ApiResponse> GetQuestionInfoById();
+        List<Object> loadDB(DbSyncRequest data);
     }
 }

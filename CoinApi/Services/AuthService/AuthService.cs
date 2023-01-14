@@ -66,7 +66,8 @@ namespace CoinApi.Services.AuthService
                 userId = db_user.UserID,
                 languageNumber = db_user.LanguageNumber,
                 deviceNumber = db_user.DeviceNumber,
-                userName = db_user.FirstName + " " + db_user.LastName
+                userName = db_user.FirstName + " " + db_user.LastName,
+                Category = db_user.tblCategory != null ? db_user.tblCategory.Name : ""
             };
         }
         public async Task<ApiResponse> CheckLogin(LoginModel user)

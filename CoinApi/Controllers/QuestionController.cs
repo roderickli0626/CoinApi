@@ -1,5 +1,6 @@
 ﻿using CoinApi.Request_Models;
 using CoinApi.Response_Models;
+using CoinApi.Services.LanguageGUIService;
 using CoinApi.Services.QuestionService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +73,16 @@ namespace CoinApi.Controllers
                 var jsonData = new { IsSuccess = false, Message = ex.Message };
                 return Ok(jsonData);
             }
+        }
+
+        [HttpPost("loadDB")]
+        public async Task<IActionResult> loadDB([FromBody] DbSyncRequest data)
+        {
+            var result = questionService.loadDB(data);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }

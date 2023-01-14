@@ -4,8 +4,10 @@ using CoinApi.Request_Models;
 using CoinApi.Response_Models;
 using CoinApi.Services.FileStorageService;
 using CoinApi.Shared;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
 using static CoinApi.Shared.ApiFunctions;
 
 namespace CoinApi.Services.QuestionService
@@ -213,6 +215,21 @@ namespace CoinApi.Services.QuestionService
                 Console.Write(ex);
             }
             return stateList;
+        }
+
+        public List<Object> loadDB(DbSyncRequest data)
+        {
+            string query =
+                $"SELECT q.Questions as QuestionContent, q.languageNumber as LanguageNumber, gq.GroupNumber, gqi.Title as QuestionTitle " +
+                $"FROM [tblQuestions] AS q INNER JOIN tblGroupQuestions AS gq ON gq.QuestionId = q.Id " +
+                $"INNER JOIN tblGroupQuestionInfo AS gqi ON gqi.Id = q.GroupQueInfoId";
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }
