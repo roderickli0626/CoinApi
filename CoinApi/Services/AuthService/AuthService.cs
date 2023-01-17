@@ -39,6 +39,9 @@ namespace CoinApi.Services.AuthService
             if (db_user.Password != Hasher.HashPassword(user.password))
                 return null;
 
+            if (!Convert.ToBoolean(db_user.ActiveAcount) || !Convert.ToBoolean(db_user.IsEnableLogin))
+                return null;
+
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var tokeOptions = new JwtSecurityToken(

@@ -45,6 +45,11 @@ namespace CoinApi.Controllers
 
             return resp == null ? Unauthorized() : Ok(resp);
         }
+        [HttpPost("ForgotPasswordRequest")]
+        public async Task<ActionResult<ApiResponse>> ForgotPasswordRequest([FromBody] string email)
+        {
+            return await authService.SendResetPasswordRequest(email);
+        }
         [HttpPost("SendResetPasswordRequest")]
         public async Task<ActionResult<ApiResponse>> SendResetPasswordRequest(string email)
         {
