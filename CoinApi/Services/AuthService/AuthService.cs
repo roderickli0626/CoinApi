@@ -140,6 +140,11 @@ namespace CoinApi.Services.AuthService
                 Password = Hasher.HashPassword(model.password),
                 DeviceNumber = model.serialNumber,
                 LanguageNumber = insertedLanguage.languageNumber,
+                Location = "",
+                Phone = "",
+                SurName = "",
+                Title = "",
+                IsAdmin = false
             };
 
             tblUser insertedUser = userService.Create(user);
@@ -150,7 +155,17 @@ namespace CoinApi.Services.AuthService
                 password = model.password
             };
 
-            return await Login(loginModel);
+            return new AuthenticatedResponse
+            {
+                result = true,
+                userId = insertedUser.UserID,
+                languageNumber = insertedUser.LanguageNumber,
+                deviceNumber = insertedUser.DeviceNumber,
+                userName = insertedUser.FirstName + " " + insertedUser.LastName,
+                Category = insertedUser.tblCategory != null ? insertedUser.tblCategory.Name : ""
+            };
+
+            //return await Login(loginModel);
         }
         public async Task<ApiResponse> SendResetPasswordRequest(string email)
         {
