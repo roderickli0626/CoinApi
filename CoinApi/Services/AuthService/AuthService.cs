@@ -144,7 +144,10 @@ namespace CoinApi.Services.AuthService
                 Phone = "",
                 SurName = "",
                 Title = "",
-                IsAdmin = false
+                IsAdmin = false,
+                ActiveAcount = true,
+                CategoryId = 3, 
+                IsEnableLogin = true
             };
 
             tblUser insertedUser = userService.Create(user);
