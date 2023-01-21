@@ -130,7 +130,11 @@ namespace CoinApi.Services.AuthService
             {
                 description = model.language
             };
-            tblLanguage insertedLanguage = langaugeService.Create(language);
+
+            tblLanguage insertedLanguage = new tblLanguage();
+            tblLanguage? exsitedLanguage = langaugeService.GetBy(l => l.description == model.language).FirstOrDefault();
+            if (exsitedLanguage == null) insertedLanguage = langaugeService.Create(language);
+            else insertedLanguage = exsitedLanguage;
 
             tblUser user = new tblUser()
             {
