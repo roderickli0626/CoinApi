@@ -69,5 +69,15 @@ namespace CoinApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("loadAllDB")]
+        public async Task<IActionResult> loadAllDB([FromBody] DbSyncRequest data)
+        {
+            var result = substanceService.loadAllDB(data);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
     }
 }

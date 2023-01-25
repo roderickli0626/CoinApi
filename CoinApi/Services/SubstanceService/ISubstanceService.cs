@@ -8,6 +8,7 @@ namespace CoinApi.Services.SubstanceService
     public interface ISubstanceService : IService<tblSubstance>
     {
         List<Object> loadDB(DbSyncRequest data);
+        List<Object> loadAllDB(DbSyncRequest data);
         Task<ApiResponse> AddSubStanceGroup(SubStanceGroupInfoVM subStanceGroupInfo);
         Task<ApiResponse> UpdateSubStanceGroup(SubStanceGroupInfoVM subStanceGroupInfo);
         Task<ApiResponse> AddImportGroupSubStance(IFormFileCollection file,bool isGroup);

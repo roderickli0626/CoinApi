@@ -101,7 +101,25 @@ namespace CoinApi.Services.SubstanceService
                 List<Object> result = conn.Query<Object>(query).ToList();
                 return result;
             }
+        }
 
+        public List<Object> loadAllDB(DbSyncRequest data)
+        {
+            string query =
+                $"SELECT s.SubstanceID, g.GroupNumber, s.Hidde, s.DateCreated as DefaultDateTime, s.Duration, s.StandardYesNo, s.WavFile, gt.Description as GroupName, st.Description as Substance, l.description as Language " +
+                $"FROM [tblSubstance] AS s INNER JOIN tblSubstanceForGroup AS sfg ON sfg.SubstanceID = s.SubstanceID " +
+                $"INNER JOIN tblSubstanceGroup AS g ON g.GroupNumber = sfg.GroupNumber " +
+                $"join tblSubstanceGroupText gt on gt.GroupNumber= g.GroupNumber " +
+                $"join tblSubstanceText st on st.SubstanceID=s.SubstanceID " +
+                $"join tblLanguage l on gt.Language= l.languageNumber  and st.Language=l.LanguageNumber " +
+                $"WHERE (s.StandardYesNo = 1) AND (g.StandardYesNO = 1) and l.languageNumber = {data.languageid} ";
+            //var result = context.Database.ExecuteSqlRaw(query);
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
         }
 
         public async Task<ApiResponse> AddSubStanceGroup(SubStanceGroupInfoVM subStanceGroupInfo)
