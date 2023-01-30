@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CoinApi.Migrations
 {
-    public partial class CreateDB : Migration
+    public partial class CreateDBCoin : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -123,7 +123,7 @@ namespace CoinApi.Migrations
                     SubstanceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Hidde = table.Column<bool>(type: "bit", nullable: true),
-                    WavFile = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WavFile = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     StandardYesNo = table.Column<bool>(type: "bit", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -282,7 +282,7 @@ namespace CoinApi.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     ProductNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    File = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    File = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     SubscriptionDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsSubscription = table.Column<bool>(type: "bit", nullable: true),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),

@@ -45,7 +45,7 @@ namespace CoinApi.Services.ModuleService
                     Description = entity.Description,
                     Price = entity.Price,
                     ProductNumber = entity.ProductNumber,
-                    File = entity.File,
+                    //File = entity.File,
                     SubscriptionDescription = entity.SubscriptionDescription,
                     IsSubscription = entity.IsSubscription,
                     Color = entity.Color,
@@ -122,7 +122,7 @@ namespace CoinApi.Services.ModuleService
                 moduleInfo.ProductNumber = entity.ProductNumber;
                 moduleInfo.IsSubscription = entity.IsSubscription;
                 moduleInfo.SubscriptionDescription = entity.SubscriptionDescription;
-                moduleInfo.File = (string.IsNullOrEmpty(profilePhoto) ? moduleInfo.File : profilePhoto);
+                //moduleInfo.File = (string.IsNullOrEmpty(profilePhoto) ? moduleInfo.File : profilePhoto);
                 moduleInfo.Color = entity.Color;
                 moduleInfo.UpdatedDatetime = DateTime.UtcNow;
                 moduleInfo.CreatedDatetime = moduleInfo.CreatedDatetime == null ? DateTime.UtcNow : moduleInfo.CreatedDatetime;
@@ -209,7 +209,7 @@ namespace CoinApi.Services.ModuleService
             moduleDataVM.GroupName = context.tblSubstanceGroupText.FirstOrDefault(s => s.GroupNumber == moduleDataVM.ModuleInfo.GroupNumberID)?.Description;
             substanceId = context.tblSubstanceForGroup.Where(s => s.GroupNumber == moduleDataVM.ModuleInfo.GroupNumberID).Select(s => s.SubstanceID).ToList();
             moduleDataVM.SubStanceGroupName = String.Join(",", context.tblSubstanceText.Where(s => substanceId.Contains(s.SubstanceID)).Select(s => s.Description).ToList());
-            moduleDataVM.ModuleInfo.File = (string.IsNullOrEmpty(moduleDataVM.ModuleInfo.File)) ? "" : _fileStorageService.GetFullImageUrl(DirectoryEnum.ProfileDirectoryName, moduleDataVM.ModuleInfo.File);
+            //moduleDataVM.ModuleInfo.File = (string.IsNullOrEmpty(moduleDataVM.ModuleInfo.File)) ? "" : _fileStorageService.GetFullImageUrl(DirectoryEnum.ProfileDirectoryName, moduleDataVM.ModuleInfo.File);
             moduleDataVM.ModulePoints = await context.tblModulePoints.Where(s => s.ModuleId == moduleDataVM.ModuleInfo.ModuleID).Select(s => new ModulePointVM
             {
                 Id = s.Id,
@@ -275,7 +275,7 @@ namespace CoinApi.Services.ModuleService
                                   Description = tm.Description,
                                   Price = tm.Price,
                                   ProductNumber = tm.ProductNumber,
-                                  File = tm.File,
+                                  //File = tm.File,
                                   SubscriptionDescription = tm.SubscriptionDescription,
                                   IsSubscription = tm.IsSubscription,
                                   Color = tm.Color,

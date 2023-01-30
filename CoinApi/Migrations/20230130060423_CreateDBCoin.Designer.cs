@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoinApi.Migrations
 {
     [DbContext(typeof(CoinApiContext))]
-    [Migration("20230113022705_substanceTable")]
-    partial class substanceTable
+    [Migration("20230130060423_CreateDBCoin")]
+    partial class CreateDBCoin
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -221,9 +221,9 @@ namespace CoinApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("File")
+                    b.Property<byte[]>("File")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int?>("GroupNumberID")
                         .HasColumnType("int");
