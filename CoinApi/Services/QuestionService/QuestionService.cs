@@ -29,22 +29,56 @@ namespace CoinApi.Services.QuestionService
                 var getGroupQuestionInfo = await context.tblGroupQuestions.ToListAsync();
                 var getQuestionInfo = await context.tblQuestions.ToListAsync();
                 var getmainGroupQuestion = await context.tblGroupQuestionInfo.ToListAsync();
-                context.tblGroupQuestions.RemoveRange(getGroupQuestionInfo);
-                context.tblQuestions.RemoveRange(getQuestionInfo);
-                context.tblGroupQuestionInfo.RemoveRange(getmainGroupQuestion);
+                //context.tblGroupQuestions.RemoveRange(getGroupQuestionInfo);
+                //context.tblQuestions.RemoveRange(getQuestionInfo);
+                //context.tblGroupQuestionInfo.RemoveRange(getmainGroupQuestion);
                 await context.SaveChangesAsync();
                 List<int> questionIds = new List<int>();
                 if (questionInfoVM == null)
                     return ApiErrorResponse("Question not found.");
 
-                tblGroupQuestionInfo tblGroupQuestionInfo = new tblGroupQuestionInfo()
+                if (questionInfoVM.Id == 0)
                 {
-                    Title = questionInfoVM.Name
-                };
-                await context.tblGroupQuestionInfo.AddAsync(tblGroupQuestionInfo);
-                await context.SaveChangesAsync();
+                    tblGroupQuestionInfo tblGroupQuestionInfo = new tblGroupQuestionInfo()
+                    {
+                        Title = questionInfoVM.Name
+                    };
+                    await context.tblGroupQuestionInfo.AddAsync(tblGroupQuestionInfo);
+                    await context.SaveChangesAsync();
 
-                if (questionInfoVM.questionInfos.Count != 0)
+                    if (questionInfoVM.questionInfos.Count != 0)
+                    {
+                        foreach (var item in questionInfoVM.questionInfos)
+                        {
+                            List<int> groupIds = new List<int>();
+                            if (!string.IsNullOrEmpty(item.GroupNumber))
+                            {
+                                groupIds = item.GroupNumber.Split(',').Select(int.Parse).ToList();
+                            }
+
+                            tblQuestions tblQuestions = new tblQuestions()
+                            {
+                                Questions = item.Questions,
+                                languageNumber = item.LanguageNumber,
+                                GroupQueInfoId = tblGroupQuestionInfo.Id
+                            };
+                            await context.tblQuestions.AddAsync(tblQuestions);
+                            await context.SaveChangesAsync();
+                            foreach (var itemGroup in groupIds)
+                            {
+                                tblGroupQuestions tblGroupQuestions = new tblGroupQuestions()
+                                {
+                                    QuestionId = tblQuestions.Id,
+                                    GroupNumber = itemGroup
+                                };
+                                await context.tblGroupQuestions.AddAsync(tblGroupQuestions);
+                                await context.SaveChangesAsync();
+                            }
+
+                        }
+                    }
+                }
+                else
                 {
                     foreach (var item in questionInfoVM.questionInfos)
                     {
@@ -53,20 +87,23 @@ namespace CoinApi.Services.QuestionService
                         {
                             groupIds = item.GroupNumber.Split(',').Select(int.Parse).ToList();
                         }
-
-                        tblQuestions tblQuestions = new tblQuestions()
+                        var chkExist = context.tblQuestions.FirstOrDefault(s => s.Id == item.Id);
+                        if (chkExist != null)
                         {
-                            Questions = item.Questions,
-                            languageNumber = item.LanguageNumber,
-                            GroupQueInfoId = tblGroupQuestionInfo.Id
-                        };
-                        await context.tblQuestions.AddAsync(tblQuestions);
+                            chkExist.Questions = item.Questions;
+                        }
                         await context.SaveChangesAsync();
+                        var removeGroupInfo = context.tblGroupQuestions.Where(s => s.QuestionId == item.Id).ToList();
+                        if (removeGroupInfo.Count != 0)
+                        {
+                            context.tblGroupQuestions.RemoveRange(removeGroupInfo);
+                            await context.SaveChangesAsync();
+                        }
                         foreach (var itemGroup in groupIds)
                         {
                             tblGroupQuestions tblGroupQuestions = new tblGroupQuestions()
                             {
-                                QuestionId = tblQuestions.Id,
+                                QuestionId = item.Id,
                                 GroupNumber = itemGroup
                             };
                             await context.tblGroupQuestions.AddAsync(tblGroupQuestions);
@@ -74,7 +111,9 @@ namespace CoinApi.Services.QuestionService
                         }
 
                     }
+                    return ApiSuccessResponses(null, "Question update successfully.");
                 }
+
                 //foreach (var item in questionInfoVM.GroupNumbers)
                 //{
                 //    foreach (var QuestionItem in questionIds)
@@ -103,46 +142,64 @@ namespace CoinApi.Services.QuestionService
 
         public async Task<ApiResponse> DeleteQuestion(int id)
         {
-            var getGroupInfo = await context.tblGroupQuestionInfo.FirstOrDefaultAsync(s => s.Id == id);
-            if (getGroupInfo == null)
-                return ApiErrorResponse("Please enter valid module.");
+            //var getGroupInfo = await context.tblGroupQuestionInfo.FirstOrDefaultAsync(s => s.Id == id);
+            //if (getGroupInfo == null)
+            //    return ApiErrorResponse("Please enter valid module.");
 
-            var getQuestionInfo = await context.tblQuestions.Where(s => s.GroupQueInfoId == getGroupInfo.Id).ToListAsync();
-            if (getQuestionInfo.Count != 0)
+            var getQuestionInfo = await context.tblQuestions.Where(s => s.Id == id).FirstOrDefaultAsync();
+            if (getQuestionInfo != null)
             {
-                List<int?> questionIds = getQuestionInfo.Select(s => (int?)s.Id).ToList();
-                var getGroupQueInfo = await context.tblGroupQuestions.Where(s => questionIds.Contains(s.QuestionId)).ToListAsync();
+                var getGroupQueInfo = await context.tblGroupQuestions.Where(s => s.QuestionId == id).ToListAsync();
                 context.tblGroupQuestions.RemoveRange(getGroupQueInfo);
             }
 
             context.tblQuestions.RemoveRange(getQuestionInfo);
-            context.tblGroupQuestionInfo.Remove(getGroupInfo);
             await context.SaveChangesAsync();
             return ApiSuccessResponses(null, "Question successfully deleted.");
         }
-        public async Task<ApiResponse> GetQuestionInfoById()
+        public async Task<ApiResponse> GetQuestionInfoById(string? search)
         {
             GroupQuestionInfoVM questionInfo = new GroupQuestionInfoVM();
-            var getQuestionInfo = await context.tblGroupQuestionInfo.FirstOrDefaultAsync();
-            if (getQuestionInfo != null)
+            List<int> groupQuestionIds = await context.tblGroupQuestionInfo.Select(s => s.Id).ToListAsync();
+
+            List<int> qustionId = new List<int>();
+            questionInfo.questionInfos = await context.tblQuestions.OrderByDescending(s => s.Id).Select(s => new QuestionInfo
             {
-                questionInfo.questionInfos = await context.tblQuestions.Where(s => s.GroupQueInfoId == getQuestionInfo.Id).Select(s => new QuestionInfo
-                {
-                    Id = s.Id,
-                    Questions = s.Questions,
-                    LanguageNumber = s.languageNumber
-                }).ToListAsync();
-                List<int?> questionIds = await context.tblQuestions.Where(s => s.GroupQueInfoId == getQuestionInfo.Id).Select(s => (int?)s.Id).ToListAsync();
-                questionInfo.GroupQuestionInfo = await context.tblGroupQuestions.Where(s => questionIds.Contains(s.QuestionId)).Select(s => new GroupQuestionDataVM
-                {
-                    GroupNumber = s.GroupNumber,
-                    QuestionId = s.QuestionId,
-
-                }).ToListAsync();
-                questionInfo.Id = getQuestionInfo.Id;
+                Id = s.Id,
+                Questions = s.Questions,
+                LanguageNumber = s.languageNumber
+            }).ToListAsync();
+            if (!string.IsNullOrEmpty(search))
+            {
+                questionInfo.questionInfos = questionInfo.questionInfos.Where(s => s.Questions.ToString().ToLower().Contains(search.ToLower())).ToList();
             }
+            //List<int?> questionIds = await context.tblQuestions.Where(s => s.GroupQueInfoId == getQuestionInfo.Id).Select(s => (int?)s.Id).ToListAsync();
+            //questionInfo.GroupQuestionInfo = await context.tblGroupQuestions.Where(s => questionIds.Contains(s.QuestionId)).Select(s => new GroupQuestionDataVM
+            //{
+            //    GroupNumber = s.GroupNumber,
+            //    QuestionId = s.QuestionId,
 
+            //}).ToListAsync();
+            //questionInfo.Id = getQuestionInfo.Id;
             return ApiSuccessResponse(questionInfo);
+        }
+
+        public async Task<ApiResponse> GetQuestionInfoFromId(int id)
+        {
+            GroupQuestionInfoVM questionInfo = new GroupQuestionInfoVM();
+            List<int> groupQuestionIds = await context.tblGroupQuestionInfo.Select(s => s.Id).ToListAsync();
+
+
+            var groupQuestionInfo = await (from tbq in context.tblGroupQuestions
+                                           join tq in context.tblSubstanceGroupText on tbq.GroupNumber equals tq.GroupNumber
+                                           where tbq.QuestionId == id
+                                           select new
+                                           {
+                                               Id = tbq.GroupNumber,
+                                               GroupName = tq.Description
+                                           }).ToListAsync();
+
+            return ApiSuccessResponse(groupQuestionInfo);
         }
 
         public async Task<ApiResponse> GetAllQuestion(string search = null, string order = "0", string orderDir = "asc", int startRec = 0, int pageSize = 10, bool isAll = false)

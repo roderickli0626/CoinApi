@@ -15,5 +15,6 @@ namespace CoinApi.Services.UserService
         Task<ApiResponse> GetAllUsers(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
         Task<ApiResponse> DeleteUser(int id);
         Task<ApiResponse> SetEnableLogin(int id);
+        Task<ApiResponse> SetPaymentMethodById(int id, string payment);
     }
 }

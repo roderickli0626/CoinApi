@@ -35,6 +35,18 @@ namespace CoinApi.Services.SubstanceGroupTextService
         {
             return context.tblSubstanceGroupText.ToList();
         }
+        public List<tblSubstanceGroupText> GetAllGroupsByLanguageId(int languageId)
+        {
+            if (languageId != 0)
+            {
+                return context.tblSubstanceGroupText.Where(s => s.Language == languageId).ToList();
+            }
+            else
+            {
+                return context.tblSubstanceGroupText.ToList();
+            }
+
+        }
         public override List<tblSubstanceGroupText> GetBy(Func<tblSubstanceGroupText, bool> predicate)
         {
             return context.tblSubstanceGroupText

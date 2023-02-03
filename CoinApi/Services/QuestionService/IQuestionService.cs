@@ -8,7 +8,8 @@ namespace CoinApi.Services.QuestionService
         Task<ApiResponse> AddQuestion(QuestionInfoVM questionInfoVM);
         Task<ApiResponse> GetAllQuestion(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
         Task<ApiResponse> DeleteQuestion(int id);
-        Task<ApiResponse> GetQuestionInfoById();
+        Task<ApiResponse> GetQuestionInfoById(string? search);
+        Task<ApiResponse> GetQuestionInfoFromId(int id);
         List<Object> loadDB(DbSyncRequest data);
     }
 }

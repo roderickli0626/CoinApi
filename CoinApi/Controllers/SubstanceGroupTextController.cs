@@ -20,6 +20,11 @@ namespace CoinApi.Controllers
         {
             return new OkObjectResult(substanceGroupTextService.GetAll());
         }
+        [HttpGet("GetAllGroupsByLanguageId")]
+        public IActionResult GetAllGroupsByLanguageId(int languageId)
+        {
+            return new OkObjectResult(substanceGroupTextService.GetAllGroupsByLanguageId(languageId));
+        }
 
         [HttpGet("GetById")]
         public async Task<IActionResult> GetById([FromQuery] int Id)

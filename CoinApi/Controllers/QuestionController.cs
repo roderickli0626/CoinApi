@@ -26,9 +26,14 @@ namespace CoinApi.Controllers
                 return Ok(await questionService.AddQuestion(questionInfo));
         }
         [HttpGet("GetQuestionInfoById")]
-        public async Task<IActionResult> GetQuestionInfoById()
+        public async Task<IActionResult> GetQuestionInfoById(string? search = "")
         {
-            return Ok(await questionService.GetQuestionInfoById());
+            return Ok(await questionService.GetQuestionInfoById(search));
+        }
+        [HttpGet("GetQuestionInfoFromId")]
+        public async Task<IActionResult> GetQuestionInfoFromId(int id)
+        {
+            return Ok(await questionService.GetQuestionInfoFromId(id));
         }
         [HttpPost("DeleteQuestion")]
         public async Task<IActionResult> DeleteQuestion(int id)

@@ -153,7 +153,7 @@ namespace CoinApi.Services.SubstanceGroupService
             await context.SaveChangesAsync();
             return ApiSuccessResponses(null, "Group successfully deleted.");
         }
-        public async Task<ApiResponse> GetAllGroups(string search = null, string order = "0", string orderDir = "asc", int startRec = 0, int pageSize = 10, bool isAll = false)
+        public async Task<ApiResponse> GetAllGroups(string search = null, string order = "0", string orderDir = "asc", int startRec = 0, int pageSize = 10, bool isAll = false, string languageNumber = null, string searchValue = null)
         {
             var data = new List<GroupInfoDto>();
             try
@@ -169,16 +169,19 @@ namespace CoinApi.Services.SubstanceGroupService
                                   GroupName = tsgt.Description,
                                   Language = tl.description,
                                   IsStandard = tsg.StandardYesNo,
-                                  IsHide = tsg.ViewYesNo
+                                  IsHide = tsg.ViewYesNo,
+                                  LanguageId = tsgt.Language
                               }).ToListAsync();
 
-                int totalRecords = data.Count;
-                if (!string.IsNullOrEmpty(search) && !string.IsNullOrWhiteSpace(search))
+                if (!string.IsNullOrEmpty(languageNumber) && languageNumber != "null" && languageNumber != "0")
                 {
-                    data = data.Where(p => (p.GroupName != null && p.GroupName.ToLower().Contains(search.ToLower())) ||
-                    (p.Language != null && p.Language.ToString().ToLower().Contains(search.ToLower())) ||
-                    (p.IsStandard != null && p.IsStandard.ToString().ToLower().Contains(search.ToLower())) ||
-                    (p.IsHide != null && p.IsHide.ToString().ToLower().Contains(search.ToLower()))).ToList();
+                    data = data.Where(s => s.LanguageId.ToString() == languageNumber).ToList();
+                }
+                int totalRecords = data.Count;
+                if (!string.IsNullOrEmpty(searchValue) && !string.IsNullOrWhiteSpace(searchValue))
+                {
+                    data = data.Where(p => (p.GroupName != null && p.GroupName.ToLower().Contains(searchValue.ToLower())) ||
+                    (p.Id.ToString() != null && p.Id.ToString().ToLower().Contains(searchValue.ToLower()))).ToList();
                 }
                 data = SortTableGroupList(order, orderDir, data);
                 int recFilter = data.Count;
@@ -240,6 +243,6 @@ namespace CoinApi.Services.SubstanceGroupService
         }
 
 
-       
+
     }
 }

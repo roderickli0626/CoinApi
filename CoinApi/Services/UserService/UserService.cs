@@ -106,6 +106,7 @@ namespace CoinApi.Services.UserService
             user.AddressTitle = entity.AddressTitle;
             user.AddressFirstName = entity.AddressFirstName;
             user.AddressLastName = entity.AddressLastName;
+            user.IsEnableLogin = entity.IsEnableLogin;
 
             context.tblUser.Update(user);
             await context.SaveChangesAsync();
@@ -132,11 +133,14 @@ namespace CoinApi.Services.UserService
             var getUserInfo = await (from tm in context.tblUser
                                      join tc in context.tblCountry on tm.CountryId equals tc.CountryId into Country
                                      from tc in Country.DefaultIfEmpty()
+                                     join tca in context.tblCategory on tm.CategoryId equals tca.CategoryId into Category
+                                     from tca in Category.DefaultIfEmpty()
                                      where tm.UserID == id
                                      select new
                                      {
                                          UserData = tm,
-                                         CountryName = tc.Name
+                                         CountryName = tc.Name,
+                                         CategoryName = tca.Name
                                      }).FirstOrDefaultAsync();
             if (getUserInfo == null)
                 return ApiErrorResponse("Please enter valid user.");
@@ -162,6 +166,16 @@ namespace CoinApi.Services.UserService
             getUserInfo.IsEnableLogin = Convert.ToBoolean(getUserInfo.IsEnableLogin) ? false : true;
             await context.SaveChangesAsync();
             return ApiSuccessResponses(null, "User " + (Convert.ToBoolean(getUserInfo.IsEnableLogin) ? "activate" : "deactivate") + " successfully.");
+        }
+        public async Task<ApiResponse> SetPaymentMethodById(int id, string payment)
+        {
+            var getUserInfo = await context.tblUser.FirstOrDefaultAsync(s => s.UserID == id);
+            if (getUserInfo == null)
+                return ApiErrorResponse("Please enter valid user.");
+
+            getUserInfo.PaymentMethod = payment;
+            await context.SaveChangesAsync();
+            return ApiSuccessResponses(null, "Payment successfully saved.");
         }
         public async Task<ApiResponse> GetAllUsers(string search = null, string order = "0", string orderDir = "asc", int startRec = 0, int pageSize = 10, bool isAll = false)
         {

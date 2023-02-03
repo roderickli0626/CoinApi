@@ -18,6 +18,11 @@ namespace CoinApi.Controllers
             this.authService = authService;
             this.userService = userService;
         }
+        [HttpPost("TestConnection")]
+        public async Task<IActionResult> TestConnection([FromBody] LoginModel user)
+        {
+            return Unauthorized();
+        }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel user)

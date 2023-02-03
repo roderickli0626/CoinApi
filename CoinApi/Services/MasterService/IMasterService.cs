@@ -16,5 +16,14 @@ namespace CoinApi.Services.MasterService
         Task<ApiResponse> GetAllCoupons(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
         Task<ApiResponse> DeleteCoupon(int id);
         #endregion
+
+        #region PayPal
+        Task<ApiResponse> AddPayPal(tblPayPalDto couponDto);
+
+        Task<ApiResponse> GetPayPalInfoById(int id);
+
+        Task<ApiResponse> GetAllPayPal(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
+        Task<ApiResponse> DeletePayPal(int id);
+        #endregion
     }
 }

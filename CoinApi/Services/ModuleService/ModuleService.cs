@@ -7,6 +7,7 @@ using CoinApi.Services.FileStorageService;
 using CoinApi.Shared;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Text;
 using static CoinApi.Shared.ApiFunctions;
 
 namespace CoinApi.Services.ModuleService
@@ -25,6 +26,7 @@ namespace CoinApi.Services.ModuleService
         {
             try
             {
+                byte[] bytes = null;
                 if (entity == null)
                     return ApiErrorResponse("Module not found.");
 
@@ -35,7 +37,8 @@ namespace CoinApi.Services.ModuleService
                 if (!string.IsNullOrEmpty(entity.File))
                 {
                     var saveProfileImageFileName = _fileStorageService.SaveFileFromBase64String(DirectoryEnum.ProfileDirectoryName, entity.File, ".jpeg");
-                    entity.File = saveProfileImageFileName;
+                    bytes = Encoding.ASCII.GetBytes(entity.File);
+                    //entity.File = saveProfileImageFileName;
                 }
 
                 tblModules tblModules = new tblModules()
@@ -45,11 +48,11 @@ namespace CoinApi.Services.ModuleService
                     Description = entity.Description,
                     Price = entity.Price,
                     ProductNumber = entity.ProductNumber,
-                    //File = entity.File,
+                    File = entity.File,
                     SubscriptionDescription = entity.SubscriptionDescription,
                     IsSubscription = entity.IsSubscription,
                     Color = entity.Color,
-                    CreatedDatetime = DateTime.UtcNow
+                    CreatedDatetime = DateTime.UtcNow,
                 };
                 context.tblModules.Add(tblModules);
                 await context.SaveChangesAsync();
@@ -61,7 +64,8 @@ namespace CoinApi.Services.ModuleService
                         tblModulePoints tblModulePoints = new tblModulePoints()
                         {
                             Point = item.Point,
-                            ModuleId = tblModules.ModuleID
+                            ModuleId = tblModules.ModuleID,
+                            GroupNumber = item.GroupNumber
                         };
                         context.tblModulePoints.AddRange(tblModulePoints);
                         await context.SaveChangesAsync();
@@ -75,6 +79,7 @@ namespace CoinApi.Services.ModuleService
                         tblModuleSubScriptionPoint tblModulesubPoints = new tblModuleSubScriptionPoint()
                         {
                             Point = item.Point,
+                            Description = item.Description,
                             ModuleId = tblModules.ModuleID
                         };
                         context.tblModuleSubScriptionPoint.AddRange(tblModulesubPoints);
@@ -90,12 +95,24 @@ namespace CoinApi.Services.ModuleService
             }
 
         }
+        public string ToVarbinary(byte[] data)
+        {
+            var sb = new StringBuilder((data.Length * 2) + 2);
+            sb.Append("0x");
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                sb.Append(data[i].ToString("X2"));
+            }
+
+            return sb.ToString();
+        }
         public async Task<ApiResponse> UpdateModule(AddModuleVM entity)
         {
             try
             {
 
-
+                byte[] bytes = null;
                 List<int> modulePointIds = new List<int>();
                 List<int> moduleSubPointIds = new List<int>();
                 string profilePhoto = string.Empty;
@@ -113,6 +130,7 @@ namespace CoinApi.Services.ModuleService
                 if (!string.IsNullOrEmpty(entity.File))
                 {
                     profilePhoto = _fileStorageService.SaveFileFromBase64String(DirectoryEnum.ProfileDirectoryName, entity.File, ".jpeg");
+                    bytes = Encoding.ASCII.GetBytes(entity.File);
                 }
 
                 moduleInfo.GroupNumberID = entity.GroupNumberID;
@@ -121,8 +139,8 @@ namespace CoinApi.Services.ModuleService
                 moduleInfo.Price = entity.Price;
                 moduleInfo.ProductNumber = entity.ProductNumber;
                 moduleInfo.IsSubscription = entity.IsSubscription;
-                moduleInfo.SubscriptionDescription = entity.SubscriptionDescription;
-                //moduleInfo.File = (string.IsNullOrEmpty(profilePhoto) ? moduleInfo.File : profilePhoto);
+                moduleInfo.SubscriptionDescription = "";
+                moduleInfo.File = (string.IsNullOrEmpty(entity.File) ? moduleInfo.File : entity.File);
                 moduleInfo.Color = entity.Color;
                 moduleInfo.UpdatedDatetime = DateTime.UtcNow;
                 moduleInfo.CreatedDatetime = moduleInfo.CreatedDatetime == null ? DateTime.UtcNow : moduleInfo.CreatedDatetime;
@@ -141,7 +159,8 @@ namespace CoinApi.Services.ModuleService
                             tblModulePoints tblModulePoints = new tblModulePoints()
                             {
                                 Point = item.Point,
-                                ModuleId = entity.ModuleID
+                                ModuleId = entity.ModuleID,
+                                GroupNumber = item.GroupNumber
                             };
                             context.tblModulePoints.AddRange(tblModulePoints);
                             await context.SaveChangesAsync();
@@ -150,6 +169,7 @@ namespace CoinApi.Services.ModuleService
                         else
                         {
                             chkExist.Point = item.Point;
+                            chkExist.GroupNumber = item.GroupNumber;
                             await context.SaveChangesAsync();
                             modulePointIds.Add(item.Id);
                         }
@@ -167,6 +187,7 @@ namespace CoinApi.Services.ModuleService
                             tblModuleSubScriptionPoint tblModulesubPoints = new tblModuleSubScriptionPoint()
                             {
                                 Point = item.Point,
+                                Description = item.Description,
                                 ModuleId = entity.ModuleID
                             };
                             context.tblModuleSubScriptionPoint.AddRange(tblModulesubPoints);
@@ -176,6 +197,7 @@ namespace CoinApi.Services.ModuleService
                         else
                         {
                             chkExist.Point = item.Point;
+                            chkExist.Description = item.Description;
                             await context.SaveChangesAsync();
                             moduleSubPointIds.Add(item.Id);
                         }
@@ -199,6 +221,7 @@ namespace CoinApi.Services.ModuleService
         }
         public async Task<ApiResponse> GetModuleInfoById(int id)
         {
+
             ModuleDataVM moduleDataVM = new ModuleDataVM();
             List<int?> substanceId = new List<int?>();
             moduleDataVM.ModuleInfo = await context.tblModules.FirstOrDefaultAsync(s => s.ModuleID == id);
@@ -206,6 +229,7 @@ namespace CoinApi.Services.ModuleService
                 return ApiErrorResponse("Please enter valid module.");
 
 
+            //moduleDataVM.ModuleInfo.File = moduleDataVM.ModuleInfo.ModuleFile != null ? ("data:image/png;base64," + Convert.ToBase64String(moduleDataVM.ModuleInfo.ModuleFile)) : "";
             moduleDataVM.GroupName = context.tblSubstanceGroupText.FirstOrDefault(s => s.GroupNumber == moduleDataVM.ModuleInfo.GroupNumberID)?.Description;
             substanceId = context.tblSubstanceForGroup.Where(s => s.GroupNumber == moduleDataVM.ModuleInfo.GroupNumberID).Select(s => s.SubstanceID).ToList();
             moduleDataVM.SubStanceGroupName = String.Join(",", context.tblSubstanceText.Where(s => substanceId.Contains(s.SubstanceID)).Select(s => s.Description).ToList());
@@ -213,12 +237,14 @@ namespace CoinApi.Services.ModuleService
             moduleDataVM.ModulePoints = await context.tblModulePoints.Where(s => s.ModuleId == moduleDataVM.ModuleInfo.ModuleID).Select(s => new ModulePointVM
             {
                 Id = s.Id,
-                Point = s.Point
+                Point = s.Point,
+                GroupNumber = s.GroupNumber
             }).ToListAsync();
             moduleDataVM.ModuleSubPoints = await context.tblModuleSubScriptionPoint.Where(s => s.ModuleId == moduleDataVM.ModuleInfo.ModuleID).Select(s => new ModulePointVM
             {
                 Id = s.Id,
-                Point = s.Point
+                Point = s.Point,
+                Description = s.Description ?? ""
             }).ToListAsync();
 
             return ApiSuccessResponse(moduleDataVM);
@@ -262,6 +288,7 @@ namespace CoinApi.Services.ModuleService
                 {
                     Id = s.Id,
                     Point = s.Point,
+                    Description = s.Description,
                     ModuleId = s.ModuleId
                 }).ToListAsync();
                 data = await (from tm in context.tblModules
@@ -275,13 +302,13 @@ namespace CoinApi.Services.ModuleService
                                   Description = tm.Description,
                                   Price = tm.Price,
                                   ProductNumber = tm.ProductNumber,
-                                  //File = tm.File,
+                                  File = tm.File,
                                   SubscriptionDescription = tm.SubscriptionDescription,
                                   IsSubscription = tm.IsSubscription,
                                   Color = tm.Color,
                                   GroupDescription = tst.Description
                               }).ToListAsync();
-                data.ForEach(s => s.File = (string.IsNullOrEmpty(s.File)) ? "" : _fileStorageService.GetFullImageUrl(DirectoryEnum.ProfileDirectoryName, s.File));
+                //data.ForEach(s => s.File = (string.IsNullOrEmpty(s.File)) ? "" : _fileStorageService.GetFullImageUrl(DirectoryEnum.ProfileDirectoryName, s.File));
                 data.ForEach(s => s.ModulePoints = getmodulePoint.Where(a => a.ModuleId == s.ModuleID).Select(s => new ModulePointVM
                 {
                     Id = s.Id,
@@ -290,7 +317,8 @@ namespace CoinApi.Services.ModuleService
                 data.ForEach(s => s.ModuleSubPoints = getmodulesubPoint.Where(a => a.ModuleId == s.ModuleID).Select(s => new ModulePointVM
                 {
                     Id = s.Id,
-                    Point = s.Point
+                    Point = s.Point,
+                    Description = s.Description
                 }).ToList());
 
 

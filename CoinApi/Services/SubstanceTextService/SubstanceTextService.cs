@@ -61,7 +61,7 @@ namespace CoinApi.Services.SubstanceTextService
             context.SaveChanges();
             return true;
         }
-        public async Task<ApiResponse> GetSubStanceByGroupId(int id)
+        public async Task<ApiResponse> GetSubStanceByGroupId(int id, int languageId)
         {
             //var getUserInfo = await context.tblUser.FirstOrDefaultAsync(s => s.UserID == id);
             var getUserInfo = await (from tm in context.tblSubstanceText
@@ -71,8 +71,14 @@ namespace CoinApi.Services.SubstanceTextService
                                      select new
                                      {
                                          SubstanceID = tm.SubstanceID,
-                                         Description = tm.Description
+                                         Description = tm.Description,
+                                         LanguageId = tm.Language
                                      }).ToListAsync();
+
+            if (languageId != 0)
+            {
+                getUserInfo = getUserInfo.Where(s => s.LanguageId == languageId).ToList();
+            }
             if (getUserInfo == null)
                 return ApiErrorResponse("Please enter valid group.");
 

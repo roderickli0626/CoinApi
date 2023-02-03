@@ -10,8 +10,8 @@ namespace CoinApi.Services.SubstanceGroupService
         Task<ApiResponse> UpdateGroup(GroupInfoDto groupInfoDto);
         Task<ApiResponse> DeleteGroup(int id);
         Task<ApiResponse> GetGroupInfoById(int id);
-        Task<ApiResponse> GetAllGroups(string search, string order, string orderDir, int startRec, int pageSize, bool isAll);
+        Task<ApiResponse> GetAllGroups(string search, string order, string orderDir, int startRec, int pageSize, bool isAll, string languageNumber, string searchValue = null);
 
-       
+
     }
 }

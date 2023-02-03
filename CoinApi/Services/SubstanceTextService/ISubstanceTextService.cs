@@ -6,7 +6,7 @@ namespace CoinApi.Services.SubstanceTextService
 {
     public interface ISubstanceTextService : IService<tblSubstanceText>
     {
-        Task<ApiResponse> GetSubStanceByGroupId(int id);
+        Task<ApiResponse> GetSubStanceByGroupId(int id, int languageId);
         List<Object> loadDB(DbSyncRequest data);
     }
 }

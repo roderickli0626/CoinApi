@@ -7,5 +7,6 @@ namespace CoinApi.DB_Models
         [Key]
         public int CategoryId { get; set; }
         public string Name { get; set; }
+        public int? OrderNo { get; set; }
     }
 }

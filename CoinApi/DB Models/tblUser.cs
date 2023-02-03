@@ -35,5 +35,7 @@ namespace CoinApi.DB_Models
         public virtual tblCategory? tblCategory { get; set; }
         [ForeignKey("CountryId")]
         public virtual tblCountry? tblCountry { get; set; }
+
+        public string? PaymentMethod { get; set; }
     }
 }

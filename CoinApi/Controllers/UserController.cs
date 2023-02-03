@@ -117,5 +117,10 @@ namespace CoinApi.Controllers
                 return Json(new { IsSuccess = false, Message = ex.Message });
             }
         }
+        [HttpGet("SetPaymentMethodById")]
+        public async Task<IActionResult> SetPaymentMethodById([FromQuery] int Id, [FromQuery] string payment)
+        {
+            return Ok(await userService.SetPaymentMethodById(Id, payment));
+        }
     }
 }

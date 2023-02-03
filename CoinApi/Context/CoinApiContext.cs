@@ -30,6 +30,9 @@ namespace CoinApi.Context
         public DbSet<tblCoupons> tblCoupons { get; set; }
         public DbSet<tblOrders> tblOrders { get; set; }
         public DbSet<tblLanguageGUI> tblLanguageGUI { get; set; }
+        public DbSet<tblPayPalConfiguration> tblPayPalConfiguration { get; set; }
+        public DbSet<tblOrderItems> tblOrderItems { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

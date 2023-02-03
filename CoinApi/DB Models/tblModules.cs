@@ -12,8 +12,7 @@ namespace CoinApi.DB_Models
         public string Description { get; set; }
         public decimal? Price { get; set; }
         public string ProductNumber { get; set; }
-        //public string File { get; set; }
-        public byte[] File { get; set; }
+        public string File { get; set; }
         public string SubscriptionDescription { get; set; }
         public bool? IsSubscription { get; set; }
         public string Color { get; set; }

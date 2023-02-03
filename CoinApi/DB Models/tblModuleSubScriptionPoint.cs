@@ -8,6 +8,7 @@ namespace CoinApi.DB_Models
         [Key]
         public int Id { get; set; }
         public string Point { get; set; }
+        public string Description { get; set; }
         public int? ModuleId { get; set; }
         [ForeignKey("ModuleId")]
         public virtual tblModules? tblModules { get; set; }

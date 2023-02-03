@@ -88,7 +88,7 @@ namespace CoinApi.Controllers
             return Ok(await substanceGroupService.DeleteGroup(id));
         }
         [HttpPost("GetAllGroups")]
-        public IActionResult GetAllGroups(bool isAll = false)
+        public IActionResult GetAllGroups(bool isAll = false, string? languageNumber = null, string? searchval = "")
         {
             var data = new List<GroupInfoDto>();
             try
@@ -100,7 +100,8 @@ namespace CoinApi.Controllers
                 var sortColumnDirection = isAll ? "" : Request.Form["order[0][dir]"].FirstOrDefault();
                 var searchValue = isAll ? "" : Request.Form["search[value]"].FirstOrDefault();
 
-                var obj = substanceGroupService.GetAllGroups(searchValue, sortColumn, sortColumnDirection, start, length, isAll).Result;
+                var obj = substanceGroupService.GetAllGroups(searchValue, sortColumn, sortColumnDirection, start, length, isAll, languageNumber, searchval).Result;
+
 
                 var output = JsonConvert.DeserializeObject<DataTableResponseVM>(obj.Data);
                 data = JsonConvert.DeserializeObject<List<GroupInfoDto>>(output.Response);
