@@ -2,6 +2,7 @@
 using CoinApi.Request_Models;
 using CoinApi.Response_Models;
 using CoinApi.Services.ModuleService;
+using CoinApi.Services.QuestionService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -96,6 +97,16 @@ namespace CoinApi.Controllers
                 var jsonData = new { IsSuccess = false, Message = ex.Message };
                 return Ok(jsonData);
             }
+        }
+
+        [HttpPost("loadDB")]
+        public async Task<IActionResult> loadDB([FromBody] DbSyncRequest data)
+        {
+            var result = moduleService.loadDB(data);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
     }
 }

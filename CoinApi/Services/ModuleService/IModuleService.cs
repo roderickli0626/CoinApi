@@ -13,5 +13,6 @@ namespace CoinApi.Services.ModuleService
         Task<ApiResponse> DeleteModule(int id);
         Task<ApiResponse> GetGroupInfo();
         Task<ApiResponse> GetGroupDescriptionInfo();
+        List<Object> loadDB(DbSyncRequest data);
     }
 }

@@ -5,8 +5,10 @@ using CoinApi.Request_Models;
 using CoinApi.Response_Models;
 using CoinApi.Services.FileStorageService;
 using CoinApi.Shared;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
 using System.Text;
 using static CoinApi.Shared.ApiFunctions;
 
@@ -384,6 +386,18 @@ namespace CoinApi.Services.ModuleService
                 Console.Write(ex);
             }
             return stateList;
+        }
+
+        public List<Object> loadDB(DbSyncRequest data)
+        {
+            string query = "SELECT * FROM [tblModules]";
+
+            using (SqlConnection conn = new SqlConnection(context.Database.GetConnectionString()))
+            {
+                List<Object> result = conn.Query<Object>(query).ToList();
+                return result;
+            }
+
         }
     }
 }
