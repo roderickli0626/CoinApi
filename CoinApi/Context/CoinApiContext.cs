@@ -50,7 +50,26 @@ namespace CoinApi.Context
                     SurName = string.Empty
                 }
                 );
-
+            modelBuilder.Entity<tblCategory>().HasData(
+                new tblCategory()
+                {
+                    CategoryId = 1,
+                    Name = "Therapeuten",
+                    OrderNo = null
+                }, 
+                new tblCategory()
+                {
+                    CategoryId = 2,
+                    Name = "Händler",
+                    OrderNo = null
+                },
+                new tblCategory()
+                {
+                    CategoryId = 3,
+                    Name = "Privatpersonen",
+                    OrderNo = null
+                }
+                );
             modelBuilder.Entity<tblLanguage>().HasKey(L => L.languageNumber);
             modelBuilder.Entity<tblSubstance>().HasKey(s => s.SubstanceID);
             modelBuilder.Entity<tblSubstanceForGroup>().HasKey(s => s.Id);
